@@ -14,6 +14,16 @@ router.get("/getTodosByUsername/:username", async (req, res) => {
   });
   res.send(userTodos);
 });
+router.delete("/deleteTodo/:id", async (req, res) => {
+  var todos = JSON.parse((await fs.promises.readFile("todos.txt")).toString());
+  var finalTodos = todos.filter((todo) => {
+    if (todo.id !== req.params.id) {
+      return true;
+    }
+  });
+  await fs.promises.writeFile("todos.txt", JSON.stringify(finalTodos));
+  res.send({ msg: "delete OK" });
+});
 router.post("/addTodo", async (req, res) => {
   console.log(req.body);
   var todos = JSON.parse((await fs.promises.readFile("todos.txt")).toString());
