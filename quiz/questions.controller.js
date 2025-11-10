@@ -1,4 +1,5 @@
 var QuestionModel = require("./question.model");
+var ExamModel = require("../exams/exam.model");
 
 async function getAllQuestions(req, res) {
   var data = await QuestionModel.find({});
@@ -23,9 +24,13 @@ async function getAllQuestionsByCategory(req, res) {
   res.send(data);
 }
 async function evaluateQuiz(req, res) {
-  // console.log(req.body);
-  ids = req.body.map((q) => q._id);
+  console.log(req.body);
+  console.log(req.headers);
+  ids = req.body.map((q) => q._id); //finding all ids of questions of a selected quiz
+  console.log(ids);
   const answerKey = await QuestionModel.find({ _id: { $in: ids } });
+  console.log(answerKey);
+
   const answerSheet = answerKey.map((q) => {
     // console.log(q);
     return req.body.find((que) => {
@@ -36,7 +41,12 @@ async function evaluateQuiz(req, res) {
       }
     });
   });
-  console.log(answerSheet);
+  var newExam = new ExamModel({
+    username: req.headers.username,
+    timeStamp: Date.now(),
+    QueAns: answerSheet,
+  });
+  newExam.save();
   res.send(answerSheet);
 }
 async function getAllCategories(req, res) {
